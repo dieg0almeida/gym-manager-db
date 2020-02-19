@@ -2,9 +2,24 @@ const db = require('../../config/db');
 
 module.exports = {
     all(callback){
-        db.query('SELECT * FROM instructor', function(err, results){
+        const query = `SELECT instructor.*, member.instructor_id, count(member.instructor_id) as total_students 
+        FROM instructor JOIN member ON (instructor.id = member.instructor_id)
+        GROUP BY instructor.id 
+        ORDER BY total_students DESC`;
+        db.query(query, function(err, results){
             if(err) throw "Database error!";
-
+            callback(results);
+        })
+    },
+    allWithFilter(filter, callback){
+        const query = `SELECT instructor.*, member.instructor_id, count(member.instructor_id) as total_students 
+        FROM instructor JOIN member ON (instructor.id = member.instructor_id)
+        WHERE instructor.name LIKE '%${filter}%'
+        OR instructor.services LIKE '%${filter}%'
+        GROUP BY instructor.id 
+        ORDER BY total_students DESC`;
+        db.query(query, function(err, results){
+            if(err) throw "Database error!";
             callback(results);
         })
     },
@@ -51,5 +66,41 @@ module.exports = {
 
             callback();
         });
+    },
+    paginate(params){
+        const {filter, limit, offset, callback} = params;
+        let totalQuery = `SELECT count(*) FROM instructor`;
+        let filterQuery = `WHERE instructor.name LIKE '%${filter}%'
+        OR instructor.services LIKE '%${filter}%'`; 
+
+        let query = `SELECT instructor.*, (${totalQuery}) AS total, member.instructor_id, count(member.instructor_id) as total_students 
+        FROM instructor JOIN member ON (instructor.id = member.instructor_id)`;
+        
+
+        if(filter){
+            // query = `${query} 
+            // ${filterQuery}`;
+
+            totalQuery = `${totalQuery} 
+            ${filterQuery}`;
+
+            query = `SELECT instructor.*, (${totalQuery}) AS total, member.instructor_id, count(member.instructor_id) as total_students 
+            FROM instructor JOIN member ON (instructor.id = member.instructor_id) ${filterQuery}`;
+        }
+
+
+        query = `${query}
+        GROUP BY instructor.id 
+        ORDER BY total_students DESC 
+        LIMIT ${limit} 
+        OFFSET ${offset}`;
+        
+
+        console.log(query);
+        db.query(query, function(err, results){
+            if(err) throw 'Database error!' + err;
+
+            callback(results);
+        })
     }
 }

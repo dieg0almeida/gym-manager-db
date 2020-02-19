@@ -3,7 +3,9 @@ const Member = require('../models/member');
 
 //CREATE
 exports.create = function(req, res){
-    res.render('members/create');
+    Member.instructorOptions(function(instructors){
+        res.render('members/create', {instructors});
+    })
 }
 
 exports.post = function(req, res){
@@ -42,9 +44,27 @@ exports.post = function(req, res){
 }
 //INDEX
 exports.index = function(req, res){
-    Member.all(function(members){
-        res.render('members/index', { members})
-    })
+    let { filter, page, limit } = req.query;
+
+    page = page || 1;
+    limit = limit || 2;
+    let offset = limit * ( page - 1 );
+
+    const params = {
+        filter,
+        limit,
+        offset,
+        callback(members){
+            const pagination = {
+                total: Math.ceil( members[0].total / limit ),
+                page
+            };
+
+            res.render('members/index', {filter, members, pagination});
+        }
+    };
+
+    Member.paginate(params);
 
 }
 
@@ -56,7 +76,7 @@ exports.show = function(req, res){
     Member.find(id, function(member){
         console.log(member.name);
         member.age = age(member.birth);
-        member.created_at = date(member.created_at).format;
+        member.created_at = date(member.created_at).format
         return res.render('members/show', { member });
     })
 
@@ -69,14 +89,17 @@ exports.edit = function(req, res){
 
     Member.find(id, function(member){
         member.birth = date(member.birth).iso;
-        return res.render('members/edit', { member });
+
+        Member.instructorOptions(function(instructors){
+            return res.render('members/edit', { member, instructors });
+        });
     })
 }
 
 exports.update = function(req, res){
     const { id } = req.body;
 
-    let {avatar_url, name, birth, gender, email, blood, weight, height} = req.body;
+    let {avatar_url, name, birth, gender, email, blood, weight, height, instructor} = req.body;
 
 
     const values = [
@@ -88,6 +111,7 @@ exports.update = function(req, res){
         weight,
         height,
         date(birth).iso,
+        instructor
     ];
 
     Member.update(id, values, function(){

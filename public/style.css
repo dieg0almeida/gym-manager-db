@@ -199,7 +199,8 @@ a.button {
     border-radius: 6px;
     text-decoration: none;
     text-transform: uppercase;
-    margin-top: 16px;
+    margin: 0;
+    text-align: center;
     display: inline-block;
     align-content: flex-end;
 }
@@ -244,4 +245,57 @@ tbody tr td:first-child {
     display: grid;
     grid-template-columns: 64px 1fr;
     align-items: center;
+}
+
+.table-container .header{
+    display: grid;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.table-container .header form{
+    display: grid;
+    grid-template-columns: 120px 1fr 120px;
+    justify-content: space-between;
+    grid-gap: 8px;
+}
+
+.table-container .header button{
+    margin: 0;
+    border-radius: 6px;
+}
+
+.table-container .header input{
+    border: 1px solid #eee;
+    padding: 4px 8px;
+    box-sizing: border-box;
+    border-radius: 6px;
+}
+
+.table-container{
+    display: grid;
+    grid-template: 64px 1fr 16px 64px / 1fr;
+}
+
+.table-container .header{
+    margin: 0;
+    align-self: start;
+}
+
+.table-container .pagination{
+    margin: 0;
+    align-self: end;
+    justify-self: center;
+}
+
+.pagination a,
+.pagination span{
+    color: var(--primary-color);
+    text-decoration: none;
+    margin-right: 8px;
+}
+
+.pagination a:hover{
+    filter: brightness(0.3);
+    border-bottom: 1px solid var(--primary-color);
 }

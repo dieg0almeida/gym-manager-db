@@ -2,11 +2,24 @@
 
 {% block content %}
     <div class="card table-container">
+        <div class="header">
+          <form action="/instructors" method="GET">
+            <a href="/instructors/create" class="new-button">Novo</a>
+            <input 
+              type="text"
+              name="filter"
+              placeholder="Filtrar por nome ou acompanhamento"
+              value={{filter}}
+            >
+            <button type="submit" class="filter-button">Filtrar</button>
+          </form>
+        </div>
         <table width="100%">
             <thead>
                 <tr>
                     <th>Instrutor</th>
                     <th>Atividades</th>
+                    <th>Alunos</th>
                     <th>#</th>
                 </tr>
             </thead>
@@ -17,11 +30,17 @@
                       <span style="background-image: url({{instructor.avatar_url}})"></span>
                       {{instructor.name}}</td>
                       <td>{{instructor.services}}</td>
+                      <td>{{instructor.total_students}}</td>
                       <td><a href="/instructors/{{instructor.id}}">Ver</a></td>
                     </tr>
                 {%endfor%}
             </tbody>
         </table>
-        <a href="/instructors/create" class="new-button">Novo</a>
+
+        <div class="pagination"
+          data-page="{{pagination.page}}"
+          data-total="{{pagination.total}}"
+          data-filter="{{filter}}">
+        </div>
     </div>
 {% endblock content %}

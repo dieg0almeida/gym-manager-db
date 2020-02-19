@@ -39,9 +39,40 @@ exports.post = function(req, res){
 }
 //INDEX
 exports.index = function(req, res){
-    Instructor.all(function(instructors){
-        res.render('instructors/index', { instructors})
-    })
+
+    let { filter, page, limit } = req.query;
+
+    page = page || 1;
+    limit = limit || 2;
+    let offset = limit * ( page - 1 );
+
+    const params = {
+        filter,
+        limit,
+        offset,
+        callback(instructors){
+            const pagination = {
+                total: Math.ceil( instructors[0].total / limit ),
+                page
+            };
+
+            console.log( pagination, instructors );
+
+            res.render('instructors/index', {filter, instructors, pagination});
+        }
+    };
+
+    Instructor.paginate(params);
+
+    // if(filter){
+    //     Instructor.allWithFilter(filter, function(instructors){
+    //         res.render('instructors/index', {filter, instructors});
+    //     })
+    // }else{
+    //     Instructor.all(function(instructors){
+    //         res.render('instructors/index', { instructors});
+    //     })
+    // }
 
 }
 
